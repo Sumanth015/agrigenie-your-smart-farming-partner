@@ -4,6 +4,7 @@ import {
   Droplets, TrendingUp, WifiOff, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 interface BottomNavProps {
   activeTab: string;
@@ -12,11 +13,12 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ activeTab, onTabChange, notificationCount }: BottomNavProps) {
+  const { t } = useTranslation();
   const tabs = [
-    { id: 'dashboard', icon: Home, label: 'Home' },
-    { id: 'recommendations', icon: Leaf, label: 'Crops' },
-    { id: 'chat', icon: MessageSquare, label: 'Assistant' },
-    { id: 'disease', icon: Camera, label: 'Scan' },
+    { id: 'dashboard', icon: Home, label: t('nav.home') },
+    { id: 'recommendations', icon: Leaf, label: t('nav.crops') },
+    { id: 'chat', icon: MessageSquare, label: t('nav.assistant') },
+    { id: 'disease', icon: Camera, label: t('nav.scan') },
   ];
 
   return (
@@ -27,9 +29,7 @@ export function BottomNav({ activeTab, onTabChange, notificationCount }: BottomN
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`flex flex-col items-center justify-center h-full px-4 transition-colors ${
-              activeTab === tab.id 
-                ? 'text-primary' 
-                : 'text-muted-foreground hover:text-foreground'
+              activeTab === tab.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'scale-110' : ''} transition-transform`} />
@@ -50,54 +50,61 @@ interface SideNavProps {
 }
 
 export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onClose }: SideNavProps) {
+  const { t, i18n } = useTranslation();
+
+  const supportedLangs = [
+    { code: 'en', nativeName: 'English' },
+    { code: 'hi', nativeName: 'हिंदी' },
+    { code: 'kn', nativeName: 'ಕನ್ನಡ' },
+  ];
+
   const tabs = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard' },
-    { id: 'recommendations', icon: Leaf, label: 'Crop Recommendations' },
-    { id: 'chat', icon: MessageSquare, label: 'AI Assistant' },
-    { id: 'disease', icon: Camera, label: 'Disease Detection' },
-    { id: 'sustainability', icon: Droplets, label: 'Sustainability' },
-    { id: 'market', icon: TrendingUp, label: 'Market Insights' },
+    { id: 'dashboard', icon: Home, label: t('nav.dashboard') },
+    { id: 'recommendations', icon: Leaf, label: t('nav.cropRecommendations') },
+    { id: 'chat', icon: MessageSquare, label: t('nav.aiAssistant') },
+    { id: 'disease', icon: Camera, label: t('nav.diseaseDetection') },
+    { id: 'sustainability', icon: Droplets, label: t('nav.sustainability') },
+    { id: 'market', icon: TrendingUp, label: t('nav.marketInsights') },
   ];
 
   return (
     <>
-      {/* Overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40 lg:hidden"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />
       )}
-
-      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 w-64 bg-sidebar border-r border-sidebar-border z-50 transform transition-transform duration-300 lg:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl gradient-hero flex items-center justify-center">
               <Leaf className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-bold text-lg text-sidebar-foreground">AgriGenie</span>
+            <span className="font-bold text-lg text-sidebar-foreground">{t('app.name')}</span>
           </div>
-          <button 
-            onClick={onClose}
-            className="lg:hidden w-8 h-8 rounded-full hover:bg-sidebar-accent flex items-center justify-center"
-          >
+          <button onClick={onClose} className="lg:hidden w-8 h-8 rounded-full hover:bg-sidebar-accent flex items-center justify-center">
             <X className="w-5 h-5 text-sidebar-foreground" />
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Language Selector in Sidebar */}
+        <div className="px-3 pt-3">
+          <select
+            value={i18n.language}
+            onChange={(e) => i18n.changeLanguage(e.target.value)}
+            className="w-full h-9 px-3 rounded-lg border border-sidebar-border bg-sidebar text-sidebar-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {supportedLangs.map((lang) => (
+              <option key={lang.code} value={lang.code}>{lang.nativeName}</option>
+            ))}
+          </select>
+        </div>
+
         <nav className="p-3 space-y-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => {
-                onTabChange(tab.id);
-                onClose();
-              }}
+              onClick={() => { onTabChange(tab.id); onClose(); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
                 activeTab === tab.id
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
@@ -110,11 +117,10 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
           ))}
         </nav>
 
-        {/* Offline Status */}
         <div className="absolute bottom-4 left-4 right-4">
           <div className="p-3 rounded-xl bg-sidebar-accent/50 flex items-center gap-2">
             <WifiOff className="w-4 h-4 text-sidebar-foreground/70" />
-            <span className="text-xs text-sidebar-foreground/70">Last synced: Just now</span>
+            <span className="text-xs text-sidebar-foreground/70">{t('nav.lastSynced')}</span>
             <RefreshCw className="w-4 h-4 text-sidebar-foreground/70 ml-auto cursor-pointer hover:rotate-180 transition-transform duration-500" />
           </div>
         </div>
@@ -130,29 +136,18 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick, onNotificationClick, notificationCount }: TopBarProps) {
+  const { t } = useTranslation();
   return (
     <header className="fixed top-0 right-0 left-0 lg:left-64 h-16 bg-background/80 backdrop-blur-lg border-b border-border z-30">
       <div className="h-full flex items-center justify-between px-4">
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden w-10 h-10 rounded-xl hover:bg-muted flex items-center justify-center"
-        >
+        <button onClick={onMenuClick} className="lg:hidden w-10 h-10 rounded-xl hover:bg-muted flex items-center justify-center">
           <Menu className="w-6 h-6 text-foreground" />
         </button>
-
         <div className="flex-1 lg:flex-none">
-          <h1 className="text-lg font-semibold text-foreground text-center lg:text-left">
-            Welcome, Farmer! 🌾
-          </h1>
+          <h1 className="text-lg font-semibold text-foreground text-center lg:text-left">{t('dashboard.welcome')}</h1>
         </div>
-
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            onClick={onNotificationClick}
-          >
+          <Button variant="ghost" size="icon" className="relative" onClick={onNotificationClick}>
             <Bell className="w-5 h-5" />
             {notificationCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">

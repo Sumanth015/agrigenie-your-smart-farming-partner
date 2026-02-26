@@ -9,6 +9,7 @@ import { ChatAssistant } from './ChatAssistant';
 import { DiseaseDetector } from './DiseaseDetector';
 import { NotificationsPanel } from './NotificationsPanel';
 import { BottomNav, SideNav, TopBar } from './Navigation';
+import { useTranslation } from 'react-i18next';
 import { 
   mockSoilData, 
   mockWeatherForecast, 
@@ -19,6 +20,7 @@ import {
 } from '@/data/mockData';
 
 export function Dashboard() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sideNavOpen, setSideNavOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -49,9 +51,9 @@ export function Dashboard() {
           <div className="space-y-6">
             <MarketInsightsCard prices={mockMarketPrices} />
             <div className="card-agri p-5">
-              <h3 className="font-semibold text-lg text-foreground mb-4">Price Trends</h3>
+              <h3 className="font-semibold text-lg text-foreground mb-4">{t('dashboard.priceTrends')}</h3>
               <div className="h-64 bg-muted rounded-xl flex items-center justify-center text-muted-foreground">
-                Chart visualization placeholder
+                {t('dashboard.chartPlaceholder')}
               </div>
             </div>
           </div>
@@ -63,38 +65,13 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SideNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        notificationCount={unreadCount}
-        isOpen={sideNavOpen}
-        onClose={() => setSideNavOpen(false)}
-      />
-
-      <TopBar
-        onMenuClick={() => setSideNavOpen(true)}
-        onNotificationClick={() => setNotificationsOpen(true)}
-        notificationCount={unreadCount}
-      />
-
+      <SideNav activeTab={activeTab} onTabChange={setActiveTab} notificationCount={unreadCount} isOpen={sideNavOpen} onClose={() => setSideNavOpen(false)} />
+      <TopBar onMenuClick={() => setSideNavOpen(true)} onNotificationClick={() => setNotificationsOpen(true)} notificationCount={unreadCount} />
       <main className="lg:ml-64 pt-20 pb-24 lg:pb-8 px-4 lg:px-6">
-        <div className="max-w-6xl mx-auto">
-          {renderContent()}
-        </div>
+        <div className="max-w-6xl mx-auto">{renderContent()}</div>
       </main>
-
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        notificationCount={unreadCount}
-      />
-
-      {notificationsOpen && (
-        <NotificationsPanel
-          notifications={mockNotifications}
-          onClose={() => setNotificationsOpen(false)}
-        />
-      )}
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} notificationCount={unreadCount} />
+      {notificationsOpen && <NotificationsPanel notifications={mockNotifications} onClose={() => setNotificationsOpen(false)} />}
     </div>
   );
 }
