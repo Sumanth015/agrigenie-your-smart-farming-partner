@@ -3,9 +3,11 @@ import { Upload, Camera, Image as ImageIcon, AlertCircle, CheckCircle2, Loader2,
 import { Button } from '@/components/ui/button';
 import { DiseaseDetection } from '@/types/agrigenie';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export function DiseaseDetector() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<DiseaseDetection | null>(null);
@@ -39,7 +41,6 @@ export function DiseaseDetector() {
       });
       streamRef.current = stream;
       setCameraOpen(true);
-      // Wait for video element to be available
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -64,7 +65,7 @@ export function DiseaseDetector() {
       setImage(dataUrl);
       setResult(null);
       stopCamera();
-      analyzeImage();
+      analyzeImage(dataUrl);
     }
   };
 
@@ -73,31 +74,32 @@ export function DiseaseDetector() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result as string);
+        const dataUrl = reader.result as string;
+        setImage(dataUrl);
         setResult(null);
-        analyzeImage();
+        analyzeImage(dataUrl);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const analyzeImage = () => {
+  const analyzeImage = async (imageData: string) => {
     setIsAnalyzing(true);
-    // Simulate AI analysis
-    setTimeout(() => {
-      setResult({
-        diseaseName: 'Bacterial Leaf Blight',
-        confidence: 87,
-        treatment: 'Apply copper-based bactericide (3g/L). Remove and destroy infected leaves. Ensure proper field drainage.',
-        prevention: [
-          'Use disease-free seeds',
-          'Avoid excess nitrogen fertilizer',
-          'Maintain proper plant spacing',
-          'Avoid overhead irrigation',
-        ],
+    try {
+      const { data, error } = await supabase.functions.invoke('detect-disease', {
+        body: { imageBase64: imageData, language: i18n.language },
       });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setResult(data as DiseaseDetection);
+    } catch (err: any) {
+      console.error('Disease detection error:', err);
+      toast.error(err?.message || 'Failed to analyze image. Please try again.');
+    } finally {
       setIsAnalyzing(false);
-    }, 2500);
+    }
   };
 
   return (
@@ -206,15 +208,20 @@ export function DiseaseDetector() {
           {result && (
             <div className="space-y-4 animate-fade-in">
               {/* Disease Name */}
-              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+               <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                   <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">🦠 {t('disease.diseaseName')}</div>
+                    <div className="text-xs text-muted-foreground mb-0.5">🌿 {t('disease.plantName')}</div>
+                    <div className="font-semibold text-foreground">{result.plantName}</div>
+                    <div className="text-xs text-muted-foreground mt-2 mb-0.5">🦠 {t('disease.diseaseName')}</div>
                     <div className="font-semibold text-destructive">{result.diseaseName}</div>
-                    <div className="text-sm text-muted-foreground mt-0.5">
+                    <div className="text-sm text-muted-foreground mt-1">
                       📊 {t('disease.confidence')}: {result.confidence}%
                     </div>
+                    {result.description && (
+                      <p className="text-sm text-foreground/80 mt-2">{result.description}</p>
+                    )}
                   </div>
                 </div>
               </div>

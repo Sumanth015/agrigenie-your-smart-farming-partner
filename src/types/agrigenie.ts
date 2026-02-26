@@ -46,8 +46,10 @@ export interface CropHistory {
 }
 
 export interface DiseaseDetection {
+  plantName: string;
   diseaseName: string;
   confidence: number;
+  description: string;
   treatment: string;
   prevention: string[];
 }
