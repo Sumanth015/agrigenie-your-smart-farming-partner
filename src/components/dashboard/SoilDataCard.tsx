@@ -1,11 +1,14 @@
 import { Droplets, Gauge, FlaskConical, Satellite, Wifi } from 'lucide-react';
 import { SoilData } from '@/types/agrigenie';
+import { useTranslation } from 'react-i18next';
 
 interface SoilDataCardProps {
   data: SoilData;
 }
 
 export function SoilDataCard({ data }: SoilDataCardProps) {
+  const { t } = useTranslation();
+
   const getPhColor = (ph: number) => {
     if (ph < 5.5) return 'text-destructive';
     if (ph < 6.0) return 'text-amber-600';
@@ -22,85 +25,62 @@ export function SoilDataCard({ data }: SoilDataCardProps) {
   };
 
   const formatTimestamp = (date: Date) => {
-    return new Intl.DateTimeFormat('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
   };
 
   return (
     <div className="card-agri p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-lg text-foreground">Soil Data</h3>
+        <h3 className="font-semibold text-lg text-foreground">{t('soil.title')}</h3>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {data.source === 'satellite' ? (
-            <Satellite className="w-4 h-4 text-primary" />
-          ) : (
-            <Wifi className="w-4 h-4 text-primary" />
-          )}
-          <span className="capitalize">{data.source}</span>
+          {data.source === 'satellite' ? <Satellite className="w-4 h-4 text-primary" /> : <Wifi className="w-4 h-4 text-primary" />}
+          <span>{data.source === 'satellite' ? t('soil.satellite') : t('soil.iot')}</span>
         </div>
       </div>
-
       <div className="grid grid-cols-2 gap-4">
-        {/* pH Level */}
         <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
             <Gauge className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">pH Level</span>
+            <span className="text-xs text-muted-foreground">{t('soil.phLevel')}</span>
           </div>
-          <div className={`text-2xl font-bold ${getPhColor(data.ph)}`}>
-            {data.ph}
-          </div>
+          <div className={`text-2xl font-bold ${getPhColor(data.ph)}`}>{data.ph}</div>
           <div className="text-xs text-muted-foreground mt-1">
-            {data.ph >= 6.0 && data.ph <= 7.5 ? 'Optimal' : 'Needs attention'}
+            {data.ph >= 6.0 && data.ph <= 7.5 ? t('soil.optimal') : t('soil.needsAttention')}
           </div>
         </div>
-
-        {/* Moisture */}
         <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
             <Droplets className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Moisture</span>
+            <span className="text-xs text-muted-foreground">{t('soil.moisture')}</span>
           </div>
-          <div className={`text-2xl font-bold ${getMoistureColor(data.moisture)}`}>
-            {data.moisture}%
-          </div>
+          <div className={`text-2xl font-bold ${getMoistureColor(data.moisture)}`}>{data.moisture}%</div>
           <div className="w-full bg-muted rounded-full h-1.5 mt-2">
-            <div 
-              className="bg-water h-1.5 rounded-full transition-all"
-              style={{ width: `${data.moisture}%` }}
-            />
+            <div className="bg-water h-1.5 rounded-full transition-all" style={{ width: `${data.moisture}%` }} />
           </div>
         </div>
-
-        {/* NPK Values */}
         <div className="stat-card col-span-2">
           <div className="flex items-center gap-2 mb-3">
             <FlaskConical className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">NPK Values (kg/ha)</span>
+            <span className="text-xs text-muted-foreground">{t('soil.npkValues')}</span>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-xl font-bold text-primary">{data.nitrogen}</div>
-              <div className="text-xs text-muted-foreground">Nitrogen (N)</div>
+              <div className="text-xs text-muted-foreground">{t('soil.nitrogen')}</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-bold text-accent">{data.phosphorus}</div>
-              <div className="text-xs text-muted-foreground">Phosphorus (P)</div>
+              <div className="text-xs text-muted-foreground">{t('soil.phosphorus')}</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-bold text-secondary">{data.potassium}</div>
-              <div className="text-xs text-muted-foreground">Potassium (K)</div>
+              <div className="text-xs text-muted-foreground">{t('soil.potassium')}</div>
             </div>
           </div>
         </div>
       </div>
-
       <div className="mt-4 pt-3 border-t border-border text-xs text-muted-foreground">
-        Last updated: {formatTimestamp(data.lastUpdated)}
+        {t('soil.lastUpdated')}: {formatTimestamp(data.lastUpdated)}
       </div>
     </div>
   );
