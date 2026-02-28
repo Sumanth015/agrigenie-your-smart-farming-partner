@@ -30,6 +30,11 @@ serve(async (req) => {
       ? `Respond entirely in ${language === "hi" ? "Hindi" : language === "kn" ? "Kannada" : "English"}.`
       : "Respond in English.";
 
+    // Ensure the image URL is properly formatted
+    const imageUrl = imageBase64.startsWith("data:")
+      ? imageBase64
+      : `data:image/jpeg;base64,${imageBase64}`;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -55,7 +60,7 @@ You MUST respond using the following JSON tool call format. Be accurate and spec
               {
                 type: "image_url",
                 image_url: {
-                  url: imageBase64.startsWith("data:") ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`,
+                  url: imageUrl,
                 },
               },
             ],
@@ -92,6 +97,9 @@ You MUST respond using the following JSON tool call format. Be accurate and spec
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
@@ -104,15 +112,27 @@ You MUST respond using the following JSON tool call format. Be accurate and spec
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      throw new Error(`AI gateway error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log("AI response:", JSON.stringify(data).substring(0, 500));
+
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
 
     if (!toolCall) {
+      // Fallback: try to parse from content if tool call wasn't used
+      const content = data.choices?.[0]?.message?.content;
+      if (content) {
+        try {
+          const parsed = JSON.parse(content);
+          return new Response(JSON.stringify(parsed), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch {
+          console.error("Could not parse AI content as JSON:", content);
+        }
+      }
       throw new Error("No structured response from AI");
     }
 
