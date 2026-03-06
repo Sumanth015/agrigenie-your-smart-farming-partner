@@ -1,1 +1,4 @@
 project_id = "tqlbliolzcbpafiahoki"
+
+[functions.detect-disease]
+verify_jwt = false
