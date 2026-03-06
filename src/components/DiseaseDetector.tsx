@@ -3,7 +3,7 @@ import { Upload, Camera, Image as ImageIcon, AlertCircle, CheckCircle2, Loader2,
 import { Button } from '@/components/ui/button';
 import { DiseaseDetection } from '@/types/agrigenie';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/integrations/supabase/client';
+
 import { toast } from 'sonner';
 
 export function DiseaseDetector() {
