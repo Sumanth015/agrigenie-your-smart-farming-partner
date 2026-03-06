@@ -3,7 +3,7 @@ import { Upload, Camera, Image as ImageIcon, AlertCircle, CheckCircle2, Loader2,
 import { Button } from '@/components/ui/button';
 import { DiseaseDetection } from '@/types/agrigenie';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/integrations/supabase/client';
+
 import { toast } from 'sonner';
 
 export function DiseaseDetector() {
@@ -86,11 +86,24 @@ export function DiseaseDetector() {
   const analyzeImage = async (imageData: string) => {
     setIsAnalyzing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('detect-disease', {
-        body: { imageBase64: imageData, language: i18n.language },
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/detect-disease`;
+
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ imageBase64: imageData, language: i18n.language }),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+        throw new Error(errorData?.error || `Request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
       if (data?.error) throw new Error(data.error);
 
       setResult(data as DiseaseDetection);
