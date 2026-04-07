@@ -73,7 +73,7 @@ export function Dashboard() {
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : (
-              <MarketInsightsCard prices={marketPrices} />
+              <MarketInsightsCard prices={marketPrices} detectedLocation={location?.state ? `${location.district}, ${location.state}` : undefined} />
             )}
             <CropHistoryCard history={mockCropHistory} />
           </div>
