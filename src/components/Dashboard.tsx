@@ -87,6 +87,8 @@ export function Dashboard() {
         return <DiseaseDetector />;
       case 'sustainability':
         return <SustainabilityCard />;
+      case 'farmdata':
+        return <FarmDataInput />;
       case 'location':
         return <LocationCropAdvisor />;
       case 'market':
