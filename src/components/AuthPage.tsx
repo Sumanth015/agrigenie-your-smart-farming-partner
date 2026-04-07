@@ -42,7 +42,8 @@ export function AuthPage({ onSuccess, onBack, initialMode = 'login' }: AuthPageP
           },
         });
         if (error) throw error;
-        toast.success('Account created! Please check your email to verify.');
+        toast.success('Account created! Welcome to AgriGenie!');
+        onSuccess();
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: form.email,
