@@ -120,7 +120,14 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
           ))}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute bottom-4 left-4 right-4 space-y-2">
+          <button
+            onClick={signOut}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Sign Out</span>
+          </button>
           <div className="p-3 rounded-xl bg-sidebar-accent/50 flex items-center gap-2">
             <WifiOff className="w-4 h-4 text-sidebar-foreground/70" />
             <span className="text-xs text-sidebar-foreground/70">{t('nav.lastSynced')}</span>
