@@ -61,6 +61,7 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
   const tabs = [
     { id: 'dashboard', icon: Home, label: t('nav.dashboard') },
     { id: 'recommendations', icon: Leaf, label: t('nav.cropRecommendations') },
+    { id: 'location', icon: MapPin, label: 'Location Advisor' },
     { id: 'chat', icon: MessageSquare, label: t('nav.aiAssistant') },
     { id: 'disease', icon: Camera, label: t('nav.diseaseDetection') },
     { id: 'sustainability', icon: Droplets, label: t('nav.sustainability') },
