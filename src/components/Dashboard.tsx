@@ -104,7 +104,7 @@ export function Dashboard() {
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : (
-              <MarketInsightsCard prices={marketPrices} />
+              <MarketInsightsCard prices={marketPrices} detectedLocation={location?.state ? `${location.district}, ${location.state}` : undefined} />
             )}
             <div className="card-agri p-5">
               <h3 className="font-semibold text-lg text-foreground mb-4">{t('dashboard.priceTrends')}</h3>
