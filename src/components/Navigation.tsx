@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Home, Leaf, MessageSquare, Camera, Bell, Settings, Menu, X, 
-  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut
+  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut, FlaskConical
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
