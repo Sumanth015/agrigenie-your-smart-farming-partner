@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SoilDataCard } from './dashboard/SoilDataCard';
 import { WeatherCard } from './dashboard/WeatherCard';
 import { MarketInsightsCard } from './dashboard/MarketInsightsCard';
 import { CropHistoryCard } from './dashboard/CropHistoryCard';
 import { CropRecommendations } from './dashboard/CropRecommendations';
 import { SustainabilityCard } from './dashboard/SustainabilityCard';
+import { FarmDataInput } from './dashboard/FarmDataInput';
 import { ChatAssistant } from './ChatAssistant';
 import { DiseaseDetector } from './DiseaseDetector';
 import { NotificationsPanel } from './NotificationsPanel';
@@ -15,11 +16,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useMarketPrices } from '@/hooks/useMarketPrices';
 import { useCropRecommendations } from '@/hooks/useCropRecommendations';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   mockSoilData, 
   mockWeatherForecast, 
   mockCropHistory,
-  mockNotifications 
 } from '@/data/mockData';
 import { Loader2 } from 'lucide-react';
 
@@ -37,7 +39,22 @@ export function Dashboard() {
     profile?.soil_type ?? undefined
   );
 
-  const unreadCount = mockNotifications.filter(n => !n.read).length;
+  // Real-time unread notification count
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['notifications_count', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('read', false);
+      if (error) return 0;
+      return count || 0;
+    },
+    enabled: !!user,
+    refetchInterval: 10000,
+  });
 
   const renderContent = () => {
     switch (activeTab) {
@@ -70,6 +87,8 @@ export function Dashboard() {
         return <DiseaseDetector />;
       case 'sustainability':
         return <SustainabilityCard />;
+      case 'farmdata':
+        return <FarmDataInput />;
       case 'location':
         return <LocationCropAdvisor />;
       case 'market':
@@ -103,7 +122,7 @@ export function Dashboard() {
         <div className="max-w-6xl mx-auto">{renderContent()}</div>
       </main>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} notificationCount={unreadCount} />
-      {notificationsOpen && <NotificationsPanel notifications={mockNotifications} onClose={() => setNotificationsOpen(false)} />}
+      {notificationsOpen && <NotificationsPanel onClose={() => setNotificationsOpen(false)} />}
     </div>
   );
 }

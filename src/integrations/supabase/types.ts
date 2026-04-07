@@ -128,6 +128,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -170,6 +200,81 @@ export type Database = {
           state?: string | null
           updated_at?: string
           village?: string | null
+        }
+        Relationships: []
+      }
+      soil_data: {
+        Row: {
+          created_at: string
+          id: string
+          moisture: number | null
+          nitrogen: number | null
+          ph: number | null
+          phosphorus: number | null
+          potassium: number | null
+          soil_type: string | null
+          source: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          moisture?: number | null
+          nitrogen?: number | null
+          ph?: number | null
+          phosphorus?: number | null
+          potassium?: number | null
+          soil_type?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          moisture?: number | null
+          nitrogen?: number | null
+          ph?: number | null
+          phosphorus?: number | null
+          potassium?: number | null
+          soil_type?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_crop_history: {
+        Row: {
+          created_at: string
+          crop: string
+          id: string
+          notes: string | null
+          season: string
+          user_id: string
+          year: number
+          yield: number | null
+        }
+        Insert: {
+          created_at?: string
+          crop: string
+          id?: string
+          notes?: string | null
+          season: string
+          user_id: string
+          year: number
+          yield?: number | null
+        }
+        Update: {
+          created_at?: string
+          crop?: string
+          id?: string
+          notes?: string | null
+          season?: string
+          user_id?: string
+          year?: number
+          yield?: number | null
         }
         Relationships: []
       }

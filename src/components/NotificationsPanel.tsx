@@ -1,38 +1,86 @@
+import { useEffect, useState } from 'react';
 import { Bell, CloudRain, TrendingUp, Droplets, FlaskConical, X } from 'lucide-react';
-import { Notification } from '@/types/agrigenie';
-import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
+interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
 interface NotificationsPanelProps {
-  notifications: Notification[];
   onClose: () => void;
 }
 
-export function NotificationsPanel({ notifications, onClose }: NotificationsPanelProps) {
+export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { t } = useTranslation();
-  const [items, setItems] = useState(notifications);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const getIcon = (type: Notification['type']) => {
+  const { data: items = [] } = useQuery({
+    queryKey: ['notifications', user?.id],
+    queryFn: async (): Promise<NotificationItem[]> => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data || []) as NotificationItem[];
+    },
+    enabled: !!user,
+  });
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('notifications-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, queryClient]);
+
+  const getIcon = (type: string) => {
     switch (type) {
-      case 'weather': return <CloudRain className="w-5 h-5 text-water" />;
+      case 'weather': return <CloudRain className="w-5 h-5 text-blue-500" />;
       case 'market': return <TrendingUp className="w-5 h-5 text-primary" />;
-      case 'irrigation': return <Droplets className="w-5 h-5 text-sky" />;
+      case 'irrigation': return <Droplets className="w-5 h-5 text-sky-500" />;
       case 'fertilizer': return <FlaskConical className="w-5 h-5 text-accent" />;
+      default: return <Bell className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
-  const formatTime = (date: Date) => {
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(minutes / 60);
+    if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(date);
   };
 
-  const markAsRead = (id: string) => {
-    setItems(items.map(n => n.id === id ? { ...n, read: true } : n));
+  const markAsRead = async (id: string) => {
+    await supabase.from('notifications').update({ read: true }).eq('id', id);
+    queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
   };
 
   const unreadCount = items.filter(n => !n.read).length;
@@ -55,7 +103,7 @@ export function NotificationsPanel({ notifications, onClose }: NotificationsPane
         {items.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>{t('dashboard.noNotifications')}</p>
+            <p>No notifications yet. Add soil data or crops to get started!</p>
           </div>
         ) : (
           <div className="divide-y divide-border">
@@ -75,7 +123,7 @@ export function NotificationsPanel({ notifications, onClose }: NotificationsPane
                       {!notification.read && <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />}
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
-                    <span className="text-xs text-muted-foreground mt-1 block">{formatTime(notification.timestamp)}</span>
+                    <span className="text-xs text-muted-foreground mt-1 block">{formatTime(notification.created_at)}</span>
                   </div>
                 </div>
               </button>
