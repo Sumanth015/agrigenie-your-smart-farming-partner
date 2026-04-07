@@ -52,6 +52,7 @@ interface SideNavProps {
 
 export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onClose }: SideNavProps) {
   const { t, i18n } = useTranslation();
+  const { signOut } = useAuth();
 
   const supportedLangs = [
     { code: 'en', nativeName: 'English' },
