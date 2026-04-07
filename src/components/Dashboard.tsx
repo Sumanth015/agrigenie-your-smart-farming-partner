@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useMarketPrices } from '@/hooks/useMarketPrices';
 import { useCropRecommendations } from '@/hooks/useCropRecommendations';
+import { useLocation } from '@/hooks/useLocation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -29,13 +30,17 @@ export function Dashboard() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const { profile } = useProfile(user?.id);
+  const { location } = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sideNavOpen, setSideNavOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const { data: marketPrices = [], isLoading: pricesLoading } = useMarketPrices(profile?.state ?? undefined);
+  // Use GPS-detected state, fallback to profile state
+  const userState = location?.state || profile?.state || undefined;
+
+  const { data: marketPrices = [], isLoading: pricesLoading } = useMarketPrices(userState);
   const { data: recommendations = [], isLoading: recsLoading } = useCropRecommendations(
-    profile?.state ?? undefined,
+    userState,
     profile?.soil_type ?? undefined
   );
 
