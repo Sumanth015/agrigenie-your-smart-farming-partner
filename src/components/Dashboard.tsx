@@ -35,10 +35,11 @@ export function Dashboard() {
   const [sideNavOpen, setSideNavOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  // Use GPS-detected state, fallback to profile state
+  // Use GPS-detected location, fallback to profile
   const userState = location?.state || profile?.state || undefined;
+  const userDistrict = location?.district || profile?.district || undefined;
 
-  const { data: marketPrices = [], isLoading: pricesLoading } = useMarketPrices(userState);
+  const { data: marketPrices = [], isLoading: pricesLoading } = useMarketPrices(userState, userDistrict);
   const { data: recommendations = [], isLoading: recsLoading } = useCropRecommendations(
     userState,
     profile?.soil_type ?? undefined
