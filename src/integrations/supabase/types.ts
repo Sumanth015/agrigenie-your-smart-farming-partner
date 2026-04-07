@@ -14,7 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      crop_history: {
+        Row: {
+          created_at: string
+          crop: string
+          id: string
+          season: string
+          user_id: string
+          year: number
+          yield: number | null
+        }
+        Insert: {
+          created_at?: string
+          crop: string
+          id?: string
+          season: string
+          user_id: string
+          year: number
+          yield?: number | null
+        }
+        Update: {
+          created_at?: string
+          crop?: string
+          id?: string
+          season?: string
+          user_id?: string
+          year?: number
+          yield?: number | null
+        }
+        Relationships: []
+      }
+      crop_recommendations: {
+        Row: {
+          created_at: string
+          crop_name: string
+          expected_yield: number | null
+          growth_duration: number | null
+          id: string
+          profit_margin: number | null
+          reasoning: string | null
+          risk_level: string | null
+          suitability_score: number
+          suitable_soil_types: string[] | null
+          suitable_states: string[] | null
+          sustainability_score: number | null
+          water_requirement: string | null
+        }
+        Insert: {
+          created_at?: string
+          crop_name: string
+          expected_yield?: number | null
+          growth_duration?: number | null
+          id?: string
+          profit_margin?: number | null
+          reasoning?: string | null
+          risk_level?: string | null
+          suitability_score: number
+          suitable_soil_types?: string[] | null
+          suitable_states?: string[] | null
+          sustainability_score?: number | null
+          water_requirement?: string | null
+        }
+        Update: {
+          created_at?: string
+          crop_name?: string
+          expected_yield?: number | null
+          growth_duration?: number | null
+          id?: string
+          profit_margin?: number | null
+          reasoning?: string | null
+          risk_level?: string | null
+          suitability_score?: number
+          suitable_soil_types?: string[] | null
+          suitable_states?: string[] | null
+          sustainability_score?: number | null
+          water_requirement?: string | null
+        }
+        Relationships: []
+      }
+      market_prices: {
+        Row: {
+          crop: string
+          demand: string
+          id: string
+          location_district: string | null
+          location_state: string | null
+          mandi_name: string
+          price: number
+          trend: string
+          updated_at: string
+        }
+        Insert: {
+          crop: string
+          demand?: string
+          id?: string
+          location_district?: string | null
+          location_state?: string | null
+          mandi_name: string
+          price: number
+          trend?: string
+          updated_at?: string
+        }
+        Update: {
+          crop?: string
+          demand?: string
+          id?: string
+          location_district?: string | null
+          location_state?: string | null
+          mandi_name?: string
+          price?: number
+          trend?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          district: string | null
+          farm_size: number | null
+          farm_size_unit: string | null
+          id: string
+          mobile: string | null
+          name: string
+          preferred_language: string | null
+          soil_type: string | null
+          state: string | null
+          updated_at: string
+          village: string | null
+        }
+        Insert: {
+          created_at?: string
+          district?: string | null
+          farm_size?: number | null
+          farm_size_unit?: string | null
+          id: string
+          mobile?: string | null
+          name: string
+          preferred_language?: string | null
+          soil_type?: string | null
+          state?: string | null
+          updated_at?: string
+          village?: string | null
+        }
+        Update: {
+          created_at?: string
+          district?: string | null
+          farm_size?: number | null
+          farm_size_unit?: string | null
+          id?: string
+          mobile?: string | null
+          name?: string
+          preferred_language?: string | null
+          soil_type?: string | null
+          state?: string | null
+          updated_at?: string
+          village?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

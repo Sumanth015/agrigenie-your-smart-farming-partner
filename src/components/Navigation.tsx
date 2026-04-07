@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { 
   Home, Leaf, MessageSquare, Camera, Bell, Settings, Menu, X, 
-  Droplets, TrendingUp, WifiOff, RefreshCw
+  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
@@ -51,6 +52,7 @@ interface SideNavProps {
 
 export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onClose }: SideNavProps) {
   const { t, i18n } = useTranslation();
+  const { signOut } = useAuth();
 
   const supportedLangs = [
     { code: 'en', nativeName: 'English' },
@@ -61,6 +63,7 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
   const tabs = [
     { id: 'dashboard', icon: Home, label: t('nav.dashboard') },
     { id: 'recommendations', icon: Leaf, label: t('nav.cropRecommendations') },
+    { id: 'location', icon: MapPin, label: 'Location Advisor' },
     { id: 'chat', icon: MessageSquare, label: t('nav.aiAssistant') },
     { id: 'disease', icon: Camera, label: t('nav.diseaseDetection') },
     { id: 'sustainability', icon: Droplets, label: t('nav.sustainability') },
@@ -117,7 +120,14 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
           ))}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute bottom-4 left-4 right-4 space-y-2">
+          <button
+            onClick={signOut}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Sign Out</span>
+          </button>
           <div className="p-3 rounded-xl bg-sidebar-accent/50 flex items-center gap-2">
             <WifiOff className="w-4 h-4 text-sidebar-foreground/70" />
             <span className="text-xs text-sidebar-foreground/70">{t('nav.lastSynced')}</span>
