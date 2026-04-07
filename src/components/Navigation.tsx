@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { 
   Home, Leaf, MessageSquare, Camera, Bell, Settings, Menu, X, 
-  Droplets, TrendingUp, WifiOff, RefreshCw
+  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
