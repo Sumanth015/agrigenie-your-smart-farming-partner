@@ -103,7 +103,7 @@ export function Dashboard() {
         <div className="max-w-6xl mx-auto">{renderContent()}</div>
       </main>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} notificationCount={unreadCount} />
-      {notificationsOpen && <NotificationsPanel notifications={mockNotifications} onClose={() => setNotificationsOpen(false)} />}
+      {notificationsOpen && <NotificationsPanel onClose={() => setNotificationsOpen(false)} />}
     </div>
   );
 }
