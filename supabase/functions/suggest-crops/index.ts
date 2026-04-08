@@ -39,7 +39,7 @@ Respond ONLY with a JSON array of exactly 5 crop objects. Each object must have:
 
 Consider soil health, crop rotation benefits, local climate, market demand, and water availability. Prioritize crops that complement the farmer's past crop history for good rotation.`;
 
-    const response = await fetch("https://api.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
