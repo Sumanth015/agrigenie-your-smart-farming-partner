@@ -17,7 +17,12 @@ const SEASONS = ['Kharif', 'Rabi', 'Zaid'];
 
 export function FarmDataInput() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const { location } = useLocation();
+  const { profile } = useProfile(user?.id);
+  const [aiSuggestions, setAiSuggestions] = useState<CropRecommendation[]>([]);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [expandedCrop, setExpandedCrop] = useState<string | null>(null);
+
 
   // Soil form
   const [soil, setSoil] = useState({
