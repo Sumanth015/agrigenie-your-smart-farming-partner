@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FlaskConical, Droplets, Loader2, Save, Plus, Trash2, History } from 'lucide-react';
+import { FlaskConical, Droplets, Loader2, Save, Plus, Trash2, History, Sparkles, TrendingUp, Clock, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useLocation } from '@/hooks/useLocation';
+import { useProfile } from '@/hooks/useProfile';
+import type { CropRecommendation } from '@/types/agrigenie';
 
 const SOIL_TYPES = ['Clay', 'Sandy', 'Loamy', 'Silty', 'Peaty', 'Chalky', 'Black Cotton'];
 const COMMON_CROPS = ['Rice', 'Wheat', 'Cotton', 'Sugarcane', 'Maize', 'Groundnut', 'Soybean', 'Pulses', 'Jowar', 'Bajra'];
