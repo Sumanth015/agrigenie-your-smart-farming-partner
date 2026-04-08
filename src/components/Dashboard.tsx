@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SoilDataCard } from './dashboard/SoilDataCard';
 import { WeatherCard } from './dashboard/WeatherCard';
 import { MarketInsightsCard } from './dashboard/MarketInsightsCard';
@@ -17,13 +17,12 @@ import { useProfile } from '@/hooks/useProfile';
 import { useMarketPrices } from '@/hooks/useMarketPrices';
 import { useCropRecommendations } from '@/hooks/useCropRecommendations';
 import { useLocation } from '@/hooks/useLocation';
+import { useSoilData } from '@/hooks/useSoilData';
+import { useCropHistory } from '@/hooks/useCropHistory';
+import { useWeather } from '@/hooks/useWeather';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  mockSoilData, 
-  mockWeatherForecast, 
-  mockCropHistory,
-} from '@/data/mockData';
+import { mockSoilData, mockWeatherForecast, mockCropHistory } from '@/data/mockData';
 import { Loader2 } from 'lucide-react';
 
 export function Dashboard() {
@@ -38,6 +37,11 @@ export function Dashboard() {
   // Use GPS-detected location, fallback to profile
   const userState = location?.state || profile?.state || undefined;
   const userDistrict = location?.district || profile?.district || undefined;
+
+  // Real data hooks
+  const { data: soilData, isLoading: soilLoading } = useSoilData(user?.id);
+  const { data: cropHistory = [], isLoading: historyLoading } = useCropHistory(user?.id);
+  const { data: weatherData, isLoading: weatherLoading } = useWeather(location?.lat, location?.lng);
 
   const { data: marketPrices = [], isLoading: pricesLoading } = useMarketPrices(userState, userDistrict);
   const { data: recommendations = [], isLoading: recsLoading } = useCropRecommendations(
@@ -62,13 +66,30 @@ export function Dashboard() {
     refetchInterval: 10000,
   });
 
+  // Use real data, fallback to mock if no data yet
+  const displaySoilData = soilData || mockSoilData;
+  const displayWeather = weatherData || mockWeatherForecast;
+  const displayCropHistory = cropHistory.length > 0 ? cropHistory : mockCropHistory;
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
           <div className="dashboard-grid">
-            <SoilDataCard data={mockSoilData} />
-            <WeatherCard forecasts={mockWeatherForecast} />
+            {soilLoading ? (
+              <div className="card-agri p-5 flex items-center justify-center h-48">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <SoilDataCard data={displaySoilData} />
+            )}
+            {weatherLoading ? (
+              <div className="card-agri p-5 flex items-center justify-center h-48">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <WeatherCard forecasts={displayWeather} />
+            )}
             {pricesLoading ? (
               <div className="card-agri p-5 flex items-center justify-center h-48">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -76,7 +97,13 @@ export function Dashboard() {
             ) : (
               <MarketInsightsCard prices={marketPrices} detectedLocation={location?.state ? `${location.district}, ${location.state}` : undefined} />
             )}
-            <CropHistoryCard history={mockCropHistory} />
+            {historyLoading ? (
+              <div className="card-agri p-5 flex items-center justify-center h-48">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <CropHistoryCard history={displayCropHistory} />
+            )}
           </div>
         );
       case 'recommendations':
