@@ -150,6 +150,47 @@ export function FarmDataInput() {
     },
   });
 
+  const getAiSuggestions = async () => {
+    setLoadingAi(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-crops', {
+        body: {
+          soilData: {
+            ph: soil.ph || null,
+            moisture: soil.moisture || null,
+            nitrogen: soil.nitrogen || null,
+            phosphorus: soil.phosphorus || null,
+            potassium: soil.potassium || null,
+            soil_type: soil.soil_type || null,
+          },
+          location: {
+            state: location?.state || profile?.state || null,
+            district: location?.district || profile?.district || null,
+          },
+          cropHistory: cropHistory.map((c: any) => ({ crop: c.crop, season: c.season, year: c.year })),
+        },
+      });
+      if (error) throw error;
+      setAiSuggestions(data.crops || []);
+      toast.success('AI suggestions ready!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to get AI suggestions');
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  const getWaterIcon = (water: string) => {
+    const count = water === 'low' ? 1 : water === 'medium' ? 2 : 3;
+    return (
+      <div className="flex gap-0.5">
+        {[...Array(3)].map((_, i) => (
+          <Droplets key={i} className={`w-4 h-4 ${i < count ? 'text-primary' : 'text-muted'}`} />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Soil Data Input */}
@@ -196,10 +237,12 @@ export function FarmDataInput() {
           </div>
         </div>
 
-        <Button onClick={saveSoilData} disabled={savingSoil}>
-          {savingSoil ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Soil Data
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={saveSoilData} disabled={savingSoil}>
+            {savingSoil ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+            Save Soil Data
+          </Button>
+        </div>
       </div>
 
       {/* Crop History Input */}
@@ -249,7 +292,6 @@ export function FarmDataInput() {
           Add Crop
         </Button>
 
-        {/* Existing crop history */}
         {cropHistory.length > 0 && (
           <div className="mt-4 space-y-2">
             <h4 className="text-sm font-medium text-muted-foreground">Your Crop History</h4>
@@ -267,6 +309,86 @@ export function FarmDataInput() {
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* AI Crop Suggestions */}
+      <div className="card-agri p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent" />
+            <h3 className="font-semibold text-lg text-foreground">AI Crop Suggestions</h3>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Based on your soil data, location, and crop history — get personalized crop suggestions from AI.
+        </p>
+        <Button onClick={getAiSuggestions} disabled={loadingAi} className="mb-4">
+          {loadingAi ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+          {loadingAi ? 'Analyzing your farm...' : 'Get AI Crop Suggestions'}
+        </Button>
+
+        {aiSuggestions.length > 0 && (
+          <div className="space-y-3">
+            {aiSuggestions.map((crop, index) => (
+              <div key={crop.name} className="border border-border rounded-xl overflow-hidden transition-all hover:shadow-md">
+                <button
+                  onClick={() => setExpandedCrop(expandedCrop === crop.name ? null : crop.name)}
+                  className="w-full p-4 flex items-center gap-4 text-left hover:bg-muted/50 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full gradient-hero flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-foreground">{crop.name}</span>
+                      <span className="score-badge score-high text-xs">{crop.suitabilityScore}% Match</span>
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />₹{Number(crop.profitMargin).toLocaleString()}</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{crop.growthDuration} days</span>
+                    </div>
+                  </div>
+                  {expandedCrop === crop.name ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+                </button>
+                {expandedCrop === crop.name && (
+                  <div className="px-4 pb-4 pt-0 border-t border-border bg-muted/30 animate-fade-in">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 mb-4">
+                      <div className="text-center p-3 bg-background rounded-xl">
+                        <div className="text-2xl font-bold text-primary">{crop.expectedYield}</div>
+                        <div className="text-xs text-muted-foreground">tons/acre</div>
+                      </div>
+                      <div className="text-center p-3 bg-background rounded-xl">
+                        <div className="text-2xl font-bold text-accent">₹{(Number(crop.profitMargin) / 1000).toFixed(0)}K</div>
+                        <div className="text-xs text-muted-foreground">Est. Profit</div>
+                      </div>
+                      <div className="text-center p-3 bg-background rounded-xl">
+                        <div className="text-2xl font-bold text-primary">{crop.sustainabilityScore}%</div>
+                        <div className="text-xs text-muted-foreground">Sustainability</div>
+                      </div>
+                      <div className="text-center p-3 bg-background rounded-xl">
+                        {getWaterIcon(crop.waterRequirement)}
+                        <div className="text-xs text-muted-foreground mt-1 capitalize">{crop.waterRequirement} water</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <AlertTriangle className="w-4 h-4 text-muted-foreground" />
+                      <span className={`score-badge text-xs ${crop.riskLevel === 'low' ? 'score-high' : crop.riskLevel === 'medium' ? 'score-medium' : 'score-low'}`}>
+                        {crop.riskLevel} risk
+                      </span>
+                    </div>
+                    <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <span className="font-medium text-sm text-primary">Why this crop?</span>
+                      </div>
+                      <p className="text-sm text-foreground/80 leading-relaxed">{crop.reasoning}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
