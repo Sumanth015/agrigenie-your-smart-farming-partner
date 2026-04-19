@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Home, Leaf, MessageSquare, Camera, Bell, Settings, Menu, X, 
-  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut, FlaskConical
+  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut, FlaskConical, Sprout
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -63,6 +63,7 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
   const tabs = [
     { id: 'dashboard', icon: Home, label: t('nav.dashboard') },
     { id: 'farmdata', icon: FlaskConical, label: 'Farm Data' },
+    { id: 'soilscan', icon: Sprout, label: 'Soil Scanner' },
     { id: 'recommendations', icon: Leaf, label: t('nav.cropRecommendations') },
     { id: 'location', icon: MapPin, label: 'Location Advisor' },
     { id: 'chat', icon: MessageSquare, label: t('nav.aiAssistant') },

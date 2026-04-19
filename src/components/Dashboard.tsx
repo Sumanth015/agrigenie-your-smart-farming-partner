@@ -6,6 +6,7 @@ import { CropHistoryCard } from './dashboard/CropHistoryCard';
 import { CropRecommendations } from './dashboard/CropRecommendations';
 import { SustainabilityCard } from './dashboard/SustainabilityCard';
 import { FarmDataInput } from './dashboard/FarmDataInput';
+import { SoilScanner } from './SoilScanner';
 import { ChatAssistant } from './ChatAssistant';
 import { DiseaseDetector } from './DiseaseDetector';
 import { NotificationsPanel } from './NotificationsPanel';
@@ -122,6 +123,8 @@ export function Dashboard() {
         return <SustainabilityCard />;
       case 'farmdata':
         return <FarmDataInput />;
+      case 'soilscan':
+        return <SoilScanner />;
       case 'location':
         return <LocationCropAdvisor />;
       case 'market':
