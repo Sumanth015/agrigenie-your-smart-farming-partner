@@ -66,14 +66,21 @@ export function SoilScanner() {
     }
     setScanning(true);
     try {
-      const { data, error } = await supabase.functions.invoke('scan-soil', {
-        body: {
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-soil`;
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
           imageBase64: imagePreview,
           language: i18n.language,
           location: { state: location?.state, district: location?.district },
-        },
+        }),
       });
-      if (error) throw error;
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Soil scan failed');
       if (data.error) throw new Error(data.error);
 
       setResult(data);
@@ -83,19 +90,22 @@ export function SoilScanner() {
       if (user) {
         const phMatch = data.estimatedPH?.match(/(\d+\.?\d*)/);
         const ph = phMatch ? parseFloat(phMatch[1]) : null;
-        await supabase.from('soil_data').insert({
+        const { error: soilError } = await supabase.from('soil_data').insert({
           user_id: user.id,
           ph,
           moisture: data.moisturePercent,
           soil_type: data.soilType,
           source: 'scan',
         });
-        await supabase.from('notifications').insert({
+        const { error: notificationError } = await supabase.from('notifications').insert({
           user_id: user.id,
           type: 'fertilizer',
           title: 'Soil Scan Complete',
           message: `Detected ${data.soilType} soil with ${data.moistureLevel.toLowerCase()} moisture. Top crop: ${data.recommendedCrops[0]?.name}.`,
         });
+        if (soilError || notificationError) {
+          console.warn('Soil scan analyzed, but dashboard sync failed:', soilError || notificationError);
+        }
       }
     } catch (err: any) {
       toast.error(err.message || 'Soil scan failed');
