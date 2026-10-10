@@ -15,7 +15,7 @@ export function useCropRecommendations(state?: string, soilType?: string) {
       }
       const { data, error } = await query.order('suitability_score', { ascending: false });
       if (error) throw error;
-      return (data || []).map((row: any) => ({
+      return (data || []).map((row: { crop_name: string; suitability_score: number; expected_yield: number; profit_margin: number; sustainability_score: number; water_requirement: string; growth_duration: number; risk_level: string; reasoning: string }) => ({
         name: row.crop_name,
         suitabilityScore: row.suitability_score,
         expectedYield: Number(row.expected_yield),

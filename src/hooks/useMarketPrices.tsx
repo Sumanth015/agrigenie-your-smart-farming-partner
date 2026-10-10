@@ -2,6 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { MarketPrice } from '@/types/agrigenie';
 
+interface MarketPriceRow {
+  crop: string;
+  price: number;
+  trend: string;
+  demand: string;
+  mandi_name: string;
+  location_district?: string;
+  updated_at: string;
+}
+
 export function useMarketPrices(state?: string, district?: string) {
   return useQuery({
     queryKey: ['market_prices', state, district],
@@ -17,13 +27,13 @@ export function useMarketPrices(state?: string, district?: string) {
       
       // Sort: district matches first, then others
       const districtLower = district?.toLowerCase() || '';
-      rows.sort((a: any, b: any) => {
+      (rows as MarketPriceRow[]).sort((a, b) => {
         const aMatch = a.location_district?.toLowerCase() === districtLower ? 0 : 1;
         const bMatch = b.location_district?.toLowerCase() === districtLower ? 0 : 1;
         return aMatch - bMatch;
       });
 
-      return rows.map((row: any) => ({
+      return (rows as MarketPriceRow[]).map((row) => ({
         crop: row.crop,
         price: Number(row.price),
         trend: row.trend as MarketPrice['trend'],
