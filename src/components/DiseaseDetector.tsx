@@ -107,9 +107,9 @@ export function DiseaseDetector() {
       if (data?.error) throw new Error(data.error);
 
       setResult(data as DiseaseDetection);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Disease detection error:', err);
-      toast.error(err?.message || 'Failed to analyze image. Please try again.');
+      toast.error(err instanceof Error ? err.message : 'Failed to analyze image. Please try again.');
     } finally {
       setIsAnalyzing(false);
     }

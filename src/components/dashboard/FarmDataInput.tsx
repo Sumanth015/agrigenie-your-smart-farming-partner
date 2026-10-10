@@ -104,8 +104,8 @@ export function FarmDataInput() {
       queryClient.invalidateQueries({ queryKey: ['soil_data'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       toast.success('Soil data saved successfully!');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to save soil data');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save soil data');
     } finally {
       setSavingSoil(false);
     }
@@ -136,7 +136,7 @@ export function FarmDataInput() {
       setNewCrop({ crop: '', season: 'Kharif', year: new Date().getFullYear().toString(), yield: '' });
       toast.success('Crop added to history!');
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: unknown) => toast.error(err instanceof Error ? err.message : 'An error occurred'),
   });
 
   const deleteCropMutation = useMutation({
@@ -167,14 +167,14 @@ export function FarmDataInput() {
             state: location?.state || profile?.state || null,
             district: location?.district || profile?.district || null,
           },
-          cropHistory: cropHistory.map((c: any) => ({ crop: c.crop, season: c.season, year: c.year })),
+          cropHistory: cropHistory.map((c: { crop: string; season: string; year: number }) => ({ crop: c.crop, season: c.season, year: c.year })),
         },
       });
       if (error) throw error;
       setAiSuggestions(data.crops || []);
       toast.success('AI suggestions ready!');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to get AI suggestions');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to get AI suggestions');
     } finally {
       setLoadingAi(false);
     }
@@ -295,7 +295,7 @@ export function FarmDataInput() {
         {cropHistory.length > 0 && (
           <div className="mt-4 space-y-2">
             <h4 className="text-sm font-medium text-muted-foreground">Your Crop History</h4>
-            {cropHistory.map((item: any) => (
+            {cropHistory.map((item: { id: string; crop: string; season: string; year: number; yield?: number }) => (
               <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-muted">
                 <div>
                   <span className="font-medium text-foreground">{item.crop}</span>

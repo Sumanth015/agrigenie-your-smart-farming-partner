@@ -107,8 +107,8 @@ export function SoilScanner() {
           console.warn('Soil scan analyzed, but dashboard sync failed:', soilError || notificationError);
         }
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Soil scan failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Soil scan failed');
     } finally {
       setScanning(false);
     }
