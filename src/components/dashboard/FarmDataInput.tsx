@@ -90,16 +90,26 @@ export function FarmDataInput() {
         soil_type: soil.soil_type || null,
         source: 'manual' as const,
       };
-      const { error } = await supabase.from('soil_data').insert(payload);
-      if (error) throw error;
 
-      // Generate a notification for the user
-      await supabase.from('notifications').insert({
-        user_id: user.id,
-        type: 'fertilizer',
-        title: 'Soil Data Updated',
-        message: `Your soil data has been recorded. pH: ${soil.ph || 'N/A'}, Moisture: ${soil.moisture || 'N/A'}%. Recommendations will be updated.`,
-      });
+      try {
+        localStorage.setItem('agrigenie_soil_data', JSON.stringify({
+          ...payload,
+          lastUpdated: new Date(),
+        }));
+      } catch {}
+
+      try {
+        const { error } = await supabase.from('soil_data').insert(payload);
+        if (error) console.warn('Supabase soil data sync failed:', error);
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          type: 'fertilizer',
+          title: 'Soil Data Updated',
+          message: `Your soil data has been recorded. pH: ${soil.ph || 'N/A'}, Moisture: ${soil.moisture || 'N/A'}%. Recommendations will be updated.`,
+        });
+      } catch (syncErr) {
+        console.warn('Remote sync skipped in offline mode:', syncErr);
+      }
 
       queryClient.invalidateQueries({ queryKey: ['soil_data'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -114,21 +124,38 @@ export function FarmDataInput() {
   const addCropMutation = useMutation({
     mutationFn: async () => {
       if (!user || !newCrop.crop) throw new Error('Please select a crop');
-      const { error } = await supabase.from('user_crop_history').insert({
-        user_id: user.id,
-        crop: newCrop.crop,
-        season: newCrop.season,
-        year: parseInt(newCrop.year),
-        yield: newCrop.yield ? parseFloat(newCrop.yield) : null,
-      });
-      if (error) throw error;
+      
+      try {
+        const raw = localStorage.getItem('agrigenie_crop_history');
+        const list = raw ? JSON.parse(raw) : [];
+        list.unshift({
+          crop: newCrop.crop,
+          season: newCrop.season,
+          year: parseInt(newCrop.year),
+          yield: newCrop.yield ? parseFloat(newCrop.yield) : 0,
+        });
+        localStorage.setItem('agrigenie_crop_history', JSON.stringify(list));
+      } catch {}
 
-      await supabase.from('notifications').insert({
-        user_id: user.id,
-        type: 'fertilizer',
-        title: 'Crop History Updated',
-        message: `Added ${newCrop.crop} (${newCrop.season} ${newCrop.year}) to your history. AI suggestions will consider this.`,
-      });
+      try {
+        const { error } = await supabase.from('user_crop_history').insert({
+          user_id: user.id,
+          crop: newCrop.crop,
+          season: newCrop.season,
+          year: parseInt(newCrop.year),
+          yield: newCrop.yield ? parseFloat(newCrop.yield) : null,
+        });
+        if (error) console.warn('Remote crop history sync failed:', error);
+
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          type: 'fertilizer',
+          title: 'Crop History Updated',
+          message: `Added ${newCrop.crop} (${newCrop.season} ${newCrop.year}) to your history. AI suggestions will consider this.`,
+        });
+      } catch (syncErr) {
+        console.warn('Remote sync skipped in offline mode:', syncErr);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user_crop_history'] });

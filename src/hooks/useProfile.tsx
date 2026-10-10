@@ -21,13 +21,22 @@ export function useProfile(userId?: string) {
     queryKey: ['profile', userId],
     queryFn: async (): Promise<Profile | null> => {
       if (!userId) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      if (error) throw error;
-      return data as Profile | null;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+        if (error) throw error;
+        if (data) return data as Profile;
+      } catch (err) {
+        console.warn('Could not fetch profile from remote server, using local data:', err);
+      }
+      try {
+        const raw = localStorage.getItem('agrigenie_profile');
+        if (raw) return JSON.parse(raw);
+      } catch {}
+      return null;
     },
     enabled: !!userId,
   });
@@ -35,11 +44,23 @@ export function useProfile(userId?: string) {
   const updateProfile = useMutation({
     mutationFn: async (updates: Partial<Profile>) => {
       if (!userId) throw new Error('Not authenticated');
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', userId);
-      if (error) throw error;
+
+      try {
+        const raw = localStorage.getItem('agrigenie_profile');
+        const current = raw ? JSON.parse(raw) : { id: userId };
+        const updated = { ...current, ...updates };
+        localStorage.setItem('agrigenie_profile', JSON.stringify(updated));
+      } catch {}
+
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', userId);
+        if (error) throw error;
+      } catch (err) {
+        console.warn('Could not sync profile update with remote server (offline mode):', err);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', userId] });
@@ -48,3 +69,4 @@ export function useProfile(userId?: string) {
 
   return { profile: query.data, loading: query.isLoading, updateProfile };
 }
+
