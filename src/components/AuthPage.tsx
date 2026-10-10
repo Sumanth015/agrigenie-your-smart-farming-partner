@@ -42,7 +42,24 @@ export function AuthPage({ onSuccess, onBack }: AuthPageProps) {
       });
 
       if (signInError) {
-        // If user doesn't exist, sign up
+        // Only attempt signup if the error is "invalid credentials" (user doesn't exist yet)
+        // For network errors (Failed to fetch), rethrow immediately
+        const isCredentialError =
+          signInError.message.toLowerCase().includes('invalid login credentials') ||
+          signInError.message.toLowerCase().includes('invalid credentials') ||
+          signInError.message.toLowerCase().includes('user not found') ||
+          signInError.status === 400;
+
+        if (!isCredentialError) {
+          // Network error or Supabase down — don't attempt signup
+          throw new Error(
+            signInError.message.includes('fetch')
+              ? 'Unable to connect to the server. Please check your internet connection or try again later.'
+              : signInError.message
+          );
+        }
+
+        // User doesn't exist — create new account
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
