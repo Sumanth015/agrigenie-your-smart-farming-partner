@@ -132,6 +132,109 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </div>
       </section>
 
+      {/* Happy Farmers Gallery Section */}
+      <section className="py-16 md:py-24 bg-secondary/30 border-y border-border">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 max-w-3xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3.5 py-1.5 rounded-full inline-block mb-3">
+              🌾 Real Impact, Real Farmers
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
+              Happy Farmers Across India
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Over 25,000+ farmers rely on AgriGenie to protect crops, conserve water, and increase farm profits.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* Farmer 1 */}
+            <div className="card-agri overflow-hidden rounded-2xl flex flex-col border border-border hover:shadow-xl transition-all">
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src="/images/farmers/farmer_ramesh.jpg"
+                  alt="Ramesh Gowda"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute top-3 right-3 bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-full">
+                  +48% Yield
+                </div>
+                <div className="absolute bottom-3 left-3 text-white">
+                  <h4 className="font-bold text-lg">Ramesh Gowda</h4>
+                  <p className="text-xs text-white/90">Mandya, Karnataka • Paddy</p>
+                </div>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <p className="text-xs text-muted-foreground italic">
+                  "AgriGenie’s weather alert saved my paddy crop right before unseasonal rains. Highest yield in 15 years!"
+                </p>
+                <div className="pt-2 border-t border-border flex justify-between items-center text-xs font-semibold text-primary">
+                  <span>+₹54,000 Extra Profit/Acre</span>
+                  <span className="text-yellow-500">★★★★★</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Farmer 2 */}
+            <div className="card-agri overflow-hidden rounded-2xl flex flex-col border border-border hover:shadow-xl transition-all">
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src="/images/farmers/farmer_sunita.jpg"
+                  alt="Sunita Patil"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute top-3 right-3 bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-full">
+                  +42% Yield
+                </div>
+                <div className="absolute bottom-3 left-3 text-white">
+                  <h4 className="font-bold text-lg">Sunita Patil</h4>
+                  <p className="text-xs text-white/90">Nashik, Maharashtra • Vegetables</p>
+                </div>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <p className="text-xs text-muted-foreground italic">
+                  "The AI disease detector caught tomato blight within seconds. The organic treatment saved our whole harvest."
+                </p>
+                <div className="pt-2 border-t border-border flex justify-between items-center text-xs font-semibold text-primary">
+                  <span>+₹68,500 Extra Profit/Acre</span>
+                  <span className="text-yellow-500">★★★★★</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Farmer 3 */}
+            <div className="card-agri overflow-hidden rounded-2xl flex flex-col border border-border hover:shadow-xl transition-all">
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src="/images/farmers/farmer_couple.jpg"
+                  alt="Anand & Meena Murugan"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute top-3 right-3 bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-full">
+                  +52% Yield
+                </div>
+                <div className="absolute bottom-3 left-3 text-white">
+                  <h4 className="font-bold text-lg">Anand & Meena</h4>
+                  <p className="text-xs text-white/90">Coimbatore, Tamil Nadu • Chilli</p>
+                </div>
+              </div>
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <p className="text-xs text-muted-foreground italic">
+                  "Smart drip irrigation cut our power bills by half and doubled the quality and red color of our chilli harvest."
+                </p>
+                <div className="pt-2 border-t border-border flex justify-between items-center text-xs font-semibold text-primary">
+                  <span>45% Water Conserved</span>
+                  <span className="text-yellow-500">★★★★★</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4">
