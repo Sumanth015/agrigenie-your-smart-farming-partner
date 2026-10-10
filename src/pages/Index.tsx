@@ -25,7 +25,7 @@ const Index = () => {
   }
 
   const renderView = () => {
-    if (user) return <Dashboard />;
+    if (user || view === 'dashboard') return <Dashboard />;
 
     switch (view) {
       case 'landing':
@@ -52,7 +52,7 @@ const Index = () => {
           />
         );
       default:
-        return null;
+        return <Dashboard />;
     }
   };
 
@@ -60,3 +60,4 @@ const Index = () => {
 };
 
 export default Index;
+
