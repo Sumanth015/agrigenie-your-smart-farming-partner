@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Home, Leaf, MessageSquare, Camera, Bell, Settings, Menu, X, 
-  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut, FlaskConical, Sprout
+  Droplets, TrendingUp, WifiOff, RefreshCw, MapPin, LogOut, FlaskConical, Sprout, HeartHandshake
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ export function BottomNav({ activeTab, onTabChange, notificationCount }: BottomN
     { id: 'recommendations', icon: Leaf, label: t('nav.crops') },
     { id: 'chat', icon: MessageSquare, label: t('nav.assistant') },
     { id: 'disease', icon: Camera, label: t('nav.scan') },
+    { id: 'farmers', icon: HeartHandshake, label: 'Farmers' },
   ];
 
   return (
@@ -29,12 +30,12 @@ export function BottomNav({ activeTab, onTabChange, notificationCount }: BottomN
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex flex-col items-center justify-center h-full px-4 transition-colors ${
+            className={`flex flex-col items-center justify-center h-full px-2 transition-colors ${
               activeTab === tab.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'scale-110' : ''} transition-transform`} />
-            <span className="text-xs mt-1">{tab.label}</span>
+            <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'scale-110' : ''} transition-transform`} />
+            <span className="text-[11px] mt-1">{tab.label}</span>
           </button>
         ))}
       </div>
@@ -62,6 +63,7 @@ export function SideNav({ activeTab, onTabChange, notificationCount, isOpen, onC
 
   const tabs = [
     { id: 'dashboard', icon: Home, label: t('nav.dashboard') },
+    { id: 'farmers', icon: HeartHandshake, label: 'Happy Farmers 🌾' },
     { id: 'farmdata', icon: FlaskConical, label: 'Farm Data' },
     { id: 'soilscan', icon: Sprout, label: 'Soil Scanner' },
     { id: 'recommendations', icon: Leaf, label: t('nav.cropRecommendations') },
