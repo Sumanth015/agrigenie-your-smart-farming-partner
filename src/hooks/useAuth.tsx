@@ -28,12 +28,15 @@ export const setLocalAuthUser = (user: User | null) => {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(() => getStoredLocalUser());
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  // If no user was cached locally, don't block the UI with a full-page spinner
+  const [loading, setLoading] = useState<boolean>(() => !!getStoredLocalUser());
 
   useEffect(() => {
+    let isMounted = true;
+
     const handleLocalAuthChange = () => {
       const local = getStoredLocalUser();
-      if (!session?.user) {
+      if (!session?.user && isMounted) {
         setUser(local);
       }
     };
@@ -42,6 +45,7 @@ export function useAuth() {
     window.addEventListener('storage', handleLocalAuthChange);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      if (!isMounted) return;
       setSession(currentSession);
       if (currentSession?.user) {
         setUser(currentSession.user);
@@ -51,20 +55,28 @@ export function useAuth() {
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      setSession(existingSession);
-      if (existingSession?.user) {
-        setUser(existingSession.user);
-      } else {
+    // Timeout guard so remote session check never hangs the app
+    const sessionTimeout = new Promise((resolve) => setTimeout(resolve, 800));
+    Promise.race([supabase.auth.getSession(), sessionTimeout])
+      .then((res: any) => {
+        if (!isMounted) return;
+        const existingSession = res?.data?.session;
+        if (existingSession) {
+          setSession(existingSession);
+          setUser(existingSession.user);
+        } else {
+          setUser(getStoredLocalUser());
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!isMounted) return;
         setUser(getStoredLocalUser());
-      }
-      setLoading(false);
-    }).catch(() => {
-      setUser(getStoredLocalUser());
-      setLoading(false);
-    });
+        setLoading(false);
+      });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
       window.removeEventListener('agrigenie_auth_change', handleLocalAuthChange);
       window.removeEventListener('storage', handleLocalAuthChange);

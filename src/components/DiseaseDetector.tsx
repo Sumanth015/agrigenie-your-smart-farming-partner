@@ -224,10 +224,18 @@ export function DiseaseDetector() {
               className="w-full h-full object-cover"
             />
             {isAnalyzing && (
-              <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                <div className="text-center">
-                  <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-3" />
-                  <p className="text-sm text-foreground">{t('disease.analyzing')}</p>
+              <div className="absolute inset-0 bg-emerald-950/50 backdrop-blur-sm flex flex-col items-center justify-center">
+                {/* Corner reticles */}
+                <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-emerald-400" />
+                <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-emerald-400" />
+                <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-emerald-400" />
+                <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-emerald-400" />
+                {/* Laser scan line */}
+                <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_#34d399] animate-laser pointer-events-none" />
+                <div className="text-center z-10 glass-panel px-5 py-4 rounded-2xl border border-emerald-500/50 shadow-2xl">
+                  <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-emerald-400 font-mono tracking-wider">GEMINI 2.5 SPECTROSCOPY</p>
+                  <p className="text-sm font-semibold text-foreground mt-1">{t('disease.analyzing')}</p>
                 </div>
               </div>
             )}
