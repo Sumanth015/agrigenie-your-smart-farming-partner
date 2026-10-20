@@ -1,31 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { LandingPage } from '@/components/LandingPage';
-import { RegistrationPage } from '@/components/RegistrationPage';
-import { AuthPage } from '@/components/AuthPage';
-import { Dashboard } from '@/components/Dashboard';
 import { Loader2 } from 'lucide-react';
 
+const Dashboard = lazy(() => import('@/components/Dashboard').then(m => ({ default: m.Dashboard })));
+const AuthPage = lazy(() => import('@/components/AuthPage').then(m => ({ default: m.AuthPage })));
+
 type AppView = 'landing' | 'register' | 'login' | 'dashboard';
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-3">
+      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+      <span className="text-sm font-mono text-muted-foreground">Loading AgriGenie...</span>
+    </div>
+  </div>
+);
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [view, setView] = useState<AppView>('landing');
 
   useEffect(() => {
-    if (user) setView('dashboard');
+    if (user) {
+      setView('dashboard');
+    }
   }, [user]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+  // Only show full-screen loader if we already know there's a cached user and we're validating
+  if (loading && user) {
+    return <PageLoader />;
   }
 
   const renderView = () => {
-    if (user || view === 'dashboard') return <Dashboard />;
+    if (user || view === 'dashboard') {
+      return (
+        <Suspense fallback={<PageLoader />}>
+          <Dashboard />
+        </Suspense>
+      );
+    }
 
     switch (view) {
       case 'landing':
@@ -37,22 +51,31 @@ const Index = () => {
         );
       case 'register':
         return (
-          <AuthPage
-            initialMode="signup"
-            onSuccess={() => setView('dashboard')}
-            onBack={() => setView('landing')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <AuthPage
+              initialMode="signup"
+              onSuccess={() => setView('dashboard')}
+              onBack={() => setView('landing')}
+            />
+          </Suspense>
         );
       case 'login':
         return (
-          <AuthPage
-            initialMode="login"
-            onSuccess={() => setView('dashboard')}
-            onBack={() => setView('landing')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <AuthPage
+              initialMode="login"
+              onSuccess={() => setView('dashboard')}
+              onBack={() => setView('landing')}
+            />
+          </Suspense>
         );
       default:
-        return <Dashboard />;
+        return (
+          <LandingPage
+            onGetStarted={() => setView('register')}
+            onLogin={() => setView('login')}
+          />
+        );
     }
   };
 

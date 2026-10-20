@@ -224,8 +224,24 @@ export function SoilScanner() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="relative rounded-xl overflow-hidden bg-muted">
+            <div className="relative rounded-2xl overflow-hidden bg-muted border border-border">
               <img src={imagePreview} alt="Soil sample" className="w-full max-h-80 object-cover" />
+              {scanning && (
+                <div className="absolute inset-0 bg-emerald-950/50 backdrop-blur-sm flex flex-col items-center justify-center">
+                  {/* Corner reticles */}
+                  <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-amber-400" />
+                  <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-amber-400" />
+                  <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-amber-400" />
+                  <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-amber-400" />
+                  {/* Laser scan line */}
+                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_15px_#f59e0b] animate-laser pointer-events-none" />
+                  <div className="text-center z-10 glass-panel px-5 py-4 rounded-2xl border border-amber-500/50 shadow-2xl">
+                    <Loader2 className="w-8 h-8 animate-spin text-amber-500 mx-auto mb-2" />
+                    <p className="text-xs font-bold text-amber-500 font-mono tracking-wider">SOIL N-P-K & pH ESTIMATION</p>
+                    <p className="text-sm font-semibold text-foreground mt-1">Analyzing soil optical properties...</p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex gap-3">
               <Button onClick={scanSoil} disabled={scanning} className="flex-1">
